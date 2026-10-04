@@ -92,7 +92,6 @@ th{font-size:.75rem;color:var(--muted);font-weight:500}
           <label class="field"><span><i class="tag an"></i>極浅ばんじゅう（枚）</span><input type="number" id="qAn" min="0" step="1" value="40"></label>
           <label class="field"><span><i class="tag dora"></i>深ばんじゅう（枚）</span><input type="number" id="qDora" min="0" step="1" value="20"></label>
         </div>
-        <label class="field"><span>空ばんじゅう回収（枚・時間の目安だけに使います）</span><input type="number" id="qEmpty" min="0" step="1" value="0"></label>
       </div>
 
       <div class="sec">
@@ -141,7 +140,7 @@ th{font-size:.75rem;color:var(--muted);font-weight:500}
 </div>
 
 <script>
-const DEFAULTS={qAn:40,qDora:20,qEmpty:0,useLimit:false,limit:8,margin:5,noMix:true,even:true,doraLow:true,hAn:8.5,hDora:12.0,
+const DEFAULTS={qAn:40,qDora:20,useLimit:false,limit:8,margin:5,noMix:true,even:true,doraLow:true,hAn:8.5,hDora:12.0,
   areas:[{name:"奥・低い所",cols:2,h:130},{name:"高い所",cols:6,h:150}]};
 const KEY="banju-calc-v4";
 let S=load();
@@ -232,7 +231,6 @@ function balance(an,dora,cols){
 const colHeight=c=>c.type==="mix"?c.d*S.hDora+c.a*S.hAn:c.type==="an"?c.n*S.hAn:c.type==="dora"?c.n*S.hDora:0;
 function calc(){
   S.qAn=Math.max(0,Math.floor(num($("qAn").value)));S.qDora=Math.max(0,Math.floor(num($("qDora").value)));
-  S.qEmpty=Math.max(0,Math.floor(num($("qEmpty").value)));
   S.useLimit=$("useLimit").checked;S.limit=num($("limit").value,8);S.margin=num($("margin").value,0);
   S.noMix=true;S.even=$("even").checked;S.doraLow=$("doraLow").checked;$("even").disabled=!S.noMix;S.hAn=num($("hAn").value,8.5);S.hDora=num($("hDora").value,12);
   $("limit").disabled=!S.useLimit;save();
@@ -261,7 +259,7 @@ function calc(){
   else if(trips.length===1){const free=trips[0].cols.filter(c=>!c.n).length;st.className="status ok";st.innerHTML=`1便で積めます <small>空き ${free}列／${totalCols}列</small>`}
   else{st.className="status warn";st.innerHTML=`${trips.length}便必要です <small>1便に収めるには、枚数を減らすか上限を見直してください。</small>`}
 
-  const t1=timeFor(items+S.qEmpty*0.5)+(trips.length-1)*7;
+  const t1=timeFor(items)+(trips.length-1)*7;
   $("stats").innerHTML=[
     [S.qAn,"極浅ばんじゅう（枚）"],[S.qDora,"深ばんじゅう（枚）"],[`${trips.length}便`,"必要な便数"],[`約${t1}分`,"作業時間の目安（1名）"]
   ].map(([b,s])=>`<div class="stat"><b>${b}</b><span>${s}</span></div>`).join("");
@@ -284,8 +282,8 @@ function calc(){
 }
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 
-function fill(){$("qAn").value=S.qAn;$("qDora").value=S.qDora;$("qEmpty").value=S.qEmpty;$("useLimit").checked=S.useLimit;$("limit").value=S.limit;$("margin").value=S.margin;$("even").checked=S.even;$("doraLow").checked=S.doraLow;$("hAn").value=S.hAn;$("hDora").value=S.hDora;renderAreas()}
-["qAn","qDora","qEmpty","limit","margin","hAn","hDora"].forEach(id=>$(id).addEventListener("input",calc));
+function fill(){$("qAn").value=S.qAn;$("qDora").value=S.qDora;$("useLimit").checked=S.useLimit;$("limit").value=S.limit;$("margin").value=S.margin;$("even").checked=S.even;$("doraLow").checked=S.doraLow;$("hAn").value=S.hAn;$("hDora").value=S.hDora;renderAreas()}
+["qAn","qDora","limit","margin","hAn","hDora"].forEach(id=>$(id).addEventListener("input",calc));
 ["useLimit","even","doraLow"].forEach(id=>$(id).addEventListener("change",calc));
 $("addArea").addEventListener("click",()=>{S.areas.push({name:"エリア",cols:1,h:150});renderAreas();calc()});
 $("reset").addEventListener("click",()=>{S=JSON.parse(JSON.stringify(DEFAULTS));fill();calc()});
