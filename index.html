@@ -61,8 +61,7 @@ button.x{padding:6px 9px;color:var(--muted)}
 .status.warn{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn)}
 .status.bad{background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad)}
 .status small{font-weight:400;color:var(--fg)}
-.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-@media (max-width:520px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .stat{border:1px solid var(--line);border-radius:8px;padding:8px 10px}
 .stat b{display:block;font-size:1.35rem;font-variant-numeric:tabular-nums}
 .stat span{font-size:.75rem;color:var(--muted)}
@@ -151,7 +150,6 @@ body{margin:0}
         <div class="tbl-wrap"><table id="capTbl"></table></div>
         <p class="note">「入る最大」は実際に入った枚数（実測）、未確認のときは高さからの計算値。「この設定」は上限ルールも反映した数です。</p>
       </div>
-      <p class="note">作業時間は9/27の実験（2名で68枚：積込18分・荷降ろし5分・移動計7分）を1名に換算した目安です。3F・5Fへの運び上げは含みません。</p>
     </section>
   </div>
 </div>
@@ -274,9 +272,6 @@ function calc(){
   while((an>0||dora>0)&&guard<20){const t=packTrip(an,dora);const placed=(an-t.anLeft)+(dora-t.doraLeft);if(placed<=0)break;trips.push({...t,an0:an,dora0:dora});an=t.anLeft;dora=t.doraLeft;guard++}
   if(!trips.length)trips.push(packTrip(0,0));
   const impossible=an>0||dora>0;
-  const items=S.qAn+S.qDora;
-  const perMin=(18*2+5*2)/68; // 1名換算：分／枚
-  const timeFor=n=>Math.round(n*perMin+7);
   const usedCols=trips.reduce((s,t)=>s+t.cols.filter(c=>c.n>0).length,0);
 
   const st=$("status");
@@ -284,9 +279,8 @@ function calc(){
   else if(trips.length===1){const free=trips[0].cols.filter(c=>!c.n).length;st.className="status ok";st.innerHTML=`1便で積めます <small>空き ${free}列／${totalCols}列</small>`}
   else{st.className="status warn";st.innerHTML=`${trips.length}便必要です <small>1便に収めるには、枚数を減らすか上限を見直してください。</small>`}
 
-  const t1=timeFor(items)+(trips.length-1)*7;
   $("stats").innerHTML=[
-    [S.qAn,"極浅ばんじゅう（枚）"],[S.qDora,"深ばんじゅう（枚）"],[`${trips.length}便`,"必要な便数"],[`約${t1}分`,"作業時間の目安（1名）"]
+    [S.qAn,"極浅ばんじゅう（枚）"],[S.qDora,"深ばんじゅう（枚）"],[`${trips.length}便`,"必要な便数"]
   ].map(([b,s])=>`<div class="stat"><b>${b}</b><span>${s}</span></div>`).join("");
 
   // 図
